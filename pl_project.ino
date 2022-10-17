@@ -51,7 +51,10 @@ Adafruit_BMP085 bmp;
 DHT dht(DHTPIN, DHTTYPE);
 //**********************************************************************************************
 
-
+  // configurating pins for primitive sensors
+int water = 16;
+int led = 2;
+int buz = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -62,6 +65,12 @@ void setup() {
   }
   //dht sensor initialization
   dht.begin();
+
+
+  //water sensor and led initialization 
+  pinMode(water, INPUT);
+  pinMode(led, OUTPUT);
+  
 }
 
 void loop() {
@@ -99,12 +108,12 @@ void loop() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
   // Read temperature as Celsius (the default)
-  float t = dht.readTemperature();
+  //float t = dht.readTemperature();
   // Read temperature as Fahrenheit (isFahrenheit = true)
-  float f = dht.readTemperature(true);
+  //float f = dht.readTemperature(true);
 
   // Check if any reads failed and exit early (to try again).
-  if (isnan(h) || isnan(t) || isnan(f)) {
+  if (isnan(h)/* || isnan(t) || isnan(f)*/) {
     Serial.println(F("Failed to read from DHT sensor!"));
     return;
   }
@@ -116,16 +125,41 @@ void loop() {
 
 
   Serial.print(F("Humidity: "));
-  Serial.print(h);
-  Serial.print(F("%  Temperature: "));
-  Serial.print(t);
-  Serial.print(F("°C "));
-  Serial.println(f);
+  Serial.println(h);
+  //Serial.print(F("%  Temperature: "));
+  //Serial.print(t);
+  //Serial.print(F("°C "));
+  //Serial.println(f);
 //  Serial.print(F("°F  Heat index: "));
 //  Serial.print(hic);
 //  Serial.print(F("°C "));
  // Serial.print(hif);
  // Serial.println(F("°F"));
+
+
+
+
+   //------------------
+  // get info from 16 pin, D0
+  int waterState = digitalRead(water);
+  
+  Serial.print(F("Water state: "));
+  Serial.println(waterState);
+  //------------------
+
+  //------------------
+  // write to 2 pin, D4
+  digitalWrite(led, waterState);
+  //------------------
+
+
+  //------------------
+  // write to 0 pin, D3
+  if (waterState == 1)
+    tone(buz, 1400);
+  else
+    noTone(buz);
+  //------------------
 
   delay(1000);
 }
